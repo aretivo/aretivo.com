@@ -2838,6 +2838,24 @@
                 }
             });
             
+            // ===== NEW: Handle screenshot images =====
+            const screenshotImgs = document.querySelectorAll('.app-screenshot, .mobile-app-screenshot');
+            screenshotImgs.forEach(img => {
+                img.addEventListener('load', function() {
+                    this.classList.add('loaded');
+                });
+                // If image is already loaded (cached), add class immediately
+                if (img.complete) {
+                    img.classList.add('loaded');
+                }
+                // Optional error handling
+                img.addEventListener('error', function() {
+                    // If image fails, still add loaded to avoid permanent invisibility
+                    this.classList.add('loaded');
+                    // Optionally set a fallback background color or placeholder
+                });
+            });
+            
             // Fix for Patreon link
             const patreonBtn = document.querySelector('.patreon-btn');
             if (patreonBtn) {
