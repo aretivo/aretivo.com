@@ -774,21 +774,24 @@
             position: relative;
         }
 
+        /* MODIFIED: object-fit changed from cover to contain */
         .app-screenshot {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
             display: block;
             border-radius: 30px;
+            background-color: #000; /* optional, adds black bars if aspect ratio mismatches */
         }
 
         /* Mobile App Screenshot - HIDDEN ON DESKTOP */
         .mobile-app-screenshot {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
             display: block;
             border-radius: 20px;
+            background-color: #000;
         }
 
         .carousel {
@@ -984,7 +987,7 @@
             margin: 0 auto 30px;
         }
 
-        /* Privacy Policy Section */
+        /* Privacy Policy Section - IMPROVED VERSION */
         .privacy-policy-section {
             display: none;
             background: var(--bg-card);
@@ -2181,7 +2184,7 @@
                     <p>In the meantime, feel free to contact us with any questions you may have.</p>
                 </div>
                 
-                <!-- Privacy Policy Section -->
+                <!-- Privacy Policy Section - IMPROVED VERSION -->
                 <div class="privacy-policy-section" id="privacySection">
                     <div class="privacy-header">
                         <div class="privacy-icon">
@@ -2193,12 +2196,12 @@
                     
                     <div class="privacy-content">
                         <div class="privacy-highlight">
-                            <p><i class="fas fa-info-circle"></i> <strong>Our Commitment:</strong> We don't collect, store, or share your personal data. All our apps are designed to work 100% offline.</p>
+                            <p><i class="fas fa-info-circle"></i> <strong>Our Commitment:</strong> We don't collect, store, or share your personal data. All our apps are designed to work with complete privacy.</p>
                         </div>
                         
                         <div class="privacy-section">
                             <h3><i class="fas fa-calendar-alt"></i> Effective Date</h3>
-                            <p>This privacy policy is effective as of February 1, 2026, and applies to all Aretivo apps.</p>
+                            <p>This privacy policy is effective as of 18th March, 2026, and applies to all Aretivo apps.</p>
                         </div>
                         
                         <div class="privacy-section">
@@ -2206,10 +2209,18 @@
                             <p>We do <strong>not</strong> collect any personal information from our users. Our apps are designed to respect your privacy from the ground up:</p>
                             <ul>
                                 <li>No account creation required</li>
-                                <li>No usage analytics or tracking</li>
+                                <li>No data transmitted to our servers (we do not operate any backend services)</li>
                                 <li>No location data collection</li>
                                 <li>No contact or identity information gathered</li>
-                                <li>No data transmitted to our servers (because we don't have any)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="privacy-section">
+                            <h3><i class="fas fa-microchip"></i> Local Processing Only</h3>
+                            <p>Some features of the app, such as music playback statistics and library updates, involve analyzing audio files and usage activity on your device.</p>
+                            <ul>
+                                <li>This processing happens entirely locally on your device</li>
+                                <li>No data is collected, stored externally, or shared with any third parties</li>
                             </ul>
                         </div>
                         
@@ -2220,7 +2231,7 @@
                                 <li>The app only scans your device's local storage to find audio files for playback</li>
                                 <li>All music playback happens locally on your device</li>
                                 <li>No music files are uploaded or transmitted anywhere</li>
-                                <li>Playback history and preferences are stored locally and never leave your device</li>
+                                <li>Playback history, statistics, and preferences are stored locally and never leave your device</li>
                                 <li>No internet connection is required for basic functionality</li>
                             </ul>
                         </div>
