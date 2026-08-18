@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#05070a">
+    <meta name="color-scheme" content="dark">
+    <meta name="description" content="Browse and import custom Aulosyne music player themes.">
+    <title>Aulosyne Themes · Aretivo</title>
+
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%2305070a'/%3E%3Cpath d='M50 13 80 25v22c0 20-12 34-30 40C32 81 20 67 20 47V25z' fill='%232dd4bf'/%3E%3Cpath d='M42 35v30l25-15z' fill='%2305070a'/%3E%3C/svg%3E">
+
+    <style>
+        :root {
+            --bg: #05070a;
+            --bg-soft: #090d12;
+            --panel: rgba(15, 21, 29, 0.82);
+            --panel-strong: #0e141c;
+            --panel-hover: #131c26;
+            --line: rgba(255, 255, 255, 0.085);
+            --line-strong: rgba(45, 212, 191, 0.35);
+            --text: #f7fbff;
+            --muted: #99a8b8;
+            --muted-2: #748394;
+            --accent: #2dd4bf;
+            --accent-2: #67e8f9;
+            --success: #86efac;
+            --danger: #fb7185;
+            --shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
+            --shadow-small: 0 12px 35px rgba(0, 0, 0, 0.28);
+            --radius-sm: 14px;
+            --radius-md: 20px;
+            --radius-lg: 28px;
+            --radius-xl: 38px;
+            --max: 1220px;
+            --header: 72px;
+        }
+
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0;
+            min-width: 280px;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 10% 2%, rgba(45, 212, 191, 0.10), transparent 28rem),
+                radial-gradient(circle at 95% 10%, rgba(103, 232, 249, 0.07), transparent 32rem),
+                var(--bg);
+            color: var(--text);
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            line-height: 1.55;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+
+        body.menu-open,
+        body.modal-open { overflow: hidden; }
+
+        a, button { -webkit-tap-highlight-color: transparent; }
+        a { color: inherit; }
+        button, textarea { font: inherit; }
+        img { max-width: 100%; display: block; }
+        ::selection { background: rgba(45, 212, 191, .28); color: #fff; }
+
+        :focus-visible {
+            outline: 3px solid rgba(103, 232, 249, .7);
+            outline-offset: 3px;
+        }
+
+        .skip-link {
+            position: fixed;
+            left: 16px;
+            top: -80px;
+            z-index: 9999;
+            background: #fff;
+            color: #000;
+            padding: 10px 14px;
+            border-radius: 10px;
+            text-decoration: none;
+        }
+        .skip-link:focus { top: 12px; }
+
+        .page-glow {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+            background-size: 52px 52px;
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,.55), transparent 80%);
+        }
+
+        .shell {
+            width: min(var(--max), calc(100% - 48px));
+            margin: 0 auto;
+        }
+
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            height: var(--header);
+            background: rgba(5, 7, 10, .78);
+            border-bottom: 1px solid var(--line);
+            backdrop-filter: blur(18px) saturate(1.25);
+            -webkit-backdrop-filter: blur(18px) saturate(1.25);
+        }
+
+        .nav {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 11px;
+            color: #fff;
+            font-weight: 800;
+            letter-spacing: -.04em;
+            font-size: 1.25rem;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .brand-mark {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            background: linear-gradient(145deg, var(--accent), #0f9f94);
+            box-shadow: 0 10px 30px rgba(45, 212, 191, .22);
+        }
+        .brand-mark svg { width: 20px; height: 20px; fill: #04110f; }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-link {
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 14px;
+            border-radius: 12px;
+            border: 0;
+            background: transparent;
+            color: var(--muted);
+            font-size: .93rem;
+            font-weight: 650;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color .2s ease, background .2s ease;
+        }
+        .nav-link:hover,
+        .nav-link.active { color: #fff; background: rgba(255,255,255,.055); }
+        .nav-link.active { color: var(--accent); }
+
+        .nav-actions { display: flex; align-items: center; gap: 10px; }
+
+        .support-mini {
+            display: inline-flex;
+            align-items: center;
+            min-height: 42px;
+            padding: 0 15px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            color: #fff;
+            background: rgba(255,255,255,.035);
+            text-decoration: none;
+            font-size: .88rem;
+            font-weight: 700;
+            transition: .2s ease;
+        }
+        .support-mini:hover { border-color: var(--line-strong); background: rgba(45,212,191,.08); }
+
+        .menu-toggle {
+            display: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            border: 1px solid var(--line);
+            background: rgba(255,255,255,.035);
+            color: #fff;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+        }
+        .menu-toggle svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+        main { display: block; }
+
+        .themes-hero {
+            padding: clamp(70px, 9vw, 112px) 0 42px;
+            text-align: center;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            width: fit-content;
+            color: #bffbf3;
+            background: rgba(45,212,191,.09);
+            border: 1px solid rgba(45,212,191,.18);
+            border-radius: 999px;
+            padding: 7px 12px;
+            font-size: .77rem;
+            font-weight: 800;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+        }
+        .eyebrow-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 18px var(--accent);
+        }
+
+        .themes-hero h1 {
+            margin: 20px auto 16px;
+            max-width: 900px;
+            font-size: clamp(3rem, 7vw, 6rem);
+            line-height: .96;
+            letter-spacing: -.06em;
+        }
+
+        .themes-hero h1 .gradient {
+            background: linear-gradient(120deg, #fff 6%, #d7fffa 40%, #78efe0 80%, #9dd9ff 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .themes-hero > p {
+            width: min(720px, 100%);
+            margin: 0 auto;
+            color: var(--muted);
+            font-size: clamp(1rem, 1.6vw, 1.18rem);
+        }
+
+        .how-to {
+            margin-top: 40px;
+            padding: clamp(22px, 4vw, 32px);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            background: linear-gradient(145deg, rgba(17,25,34,.88), rgba(7,10,14,.92));
+            box-shadow: var(--shadow-small);
+            text-align: left;
+        }
+
+        .how-to-head {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 24px;
+            margin-bottom: 20px;
+        }
+
+        .how-to h2 {
+            margin: 0;
+            font-size: clamp(1.6rem, 3vw, 2.4rem);
+            letter-spacing: -.04em;
+        }
+
+        .how-to-head p {
+            margin: 0;
+            color: var(--muted);
+            font-size: .9rem;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .step {
+            position: relative;
+            min-height: 150px;
+            padding: 18px;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: rgba(255,255,255,.025);
+        }
+
+        .step-number {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            margin-bottom: 16px;
+            border-radius: 10px;
+            background: rgba(45,212,191,.09);
+            color: var(--accent);
+            font-size: .82rem;
+            font-weight: 900;
+        }
+
+        .step h3 { margin: 0 0 6px; font-size: .95rem; }
+        .step p { margin: 0; color: var(--muted); font-size: .82rem; line-height: 1.48; }
+        .step strong { color: #e8f3fb; }
+
+        .themes-section { padding: 42px 0 100px; }
+
+        .section-head {
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 28px;
+            margin-bottom: 28px;
+        }
+
+        .section-head h2 {
+            margin: 0 0 7px;
+            font-size: clamp(2rem, 4.2vw, 3.7rem);
+            line-height: 1;
+            letter-spacing: -.05em;
+        }
+
+        .section-head p { margin: 0; color: var(--muted); max-width: 520px; }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .theme-card {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            background: rgba(12,17,23,.82);
+            box-shadow: var(--shadow-small);
+            transition: transform .18s ease, border-color .18s ease, background .18s ease;
+        }
+        .theme-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(45,212,191,.22);
+            background: rgba(13,20,27,.94);
+        }
+
+        .theme-preview {
+            position: relative;
+            aspect-ratio: 9 / 19.6;
+            margin: 18px 18px 0;
+            overflow: hidden;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,.07);
+            background:
+                radial-gradient(circle at 55% 22%, rgba(45,212,191,.18), transparent 35%),
+                linear-gradient(145deg, #151c25, #05070a 70%);
+        }
+
+        .theme-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .theme-preview-fallback {
+            position: absolute;
+            inset: 0;
+            display: none;
+            place-items: center;
+            padding: 28px;
+            text-align: center;
+            color: var(--muted);
+        }
+        .theme-preview-fallback strong {
+            display: block;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+        .theme-preview-fallback code {
+            color: var(--accent);
+            font-size: .86rem;
+        }
+
+        .theme-info {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        .theme-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 8px;
+        }
+
+        .theme-title-row h3 { margin: 0; font-size: 1.2rem; letter-spacing: -.025em; }
+        .theme-badge {
+            flex: 0 0 auto;
+            padding: 5px 9px;
+            border-radius: 999px;
+            border: 1px solid rgba(45,212,191,.17);
+            background: rgba(45,212,191,.075);
+            color: #bffbf3;
+            font-size: .68rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        .theme-info p {
+            flex: 1;
+            margin: 0 0 18px;
+            color: var(--muted);
+            font-size: .88rem;
+        }
+
+        .btn {
+            min-height: 50px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            border-radius: 14px;
+            padding: 0 20px;
+            font-size: .94rem;
+            font-weight: 800;
+            text-decoration: none;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: transform .18s ease, background .18s ease, border-color .18s ease, box-shadow .18s ease;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn-primary {
+            background: var(--accent);
+            color: #04110f;
+            box-shadow: 0 16px 40px rgba(45, 212, 191, .16);
+        }
+        .btn-primary:hover {
+            background: #58dfcd;
+            box-shadow: 0 18px 45px rgba(45, 212, 191, .23);
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,.04);
+            border-color: var(--line);
+            color: #e9f0f6;
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,.075); border-color: rgba(255,255,255,.15); }
+        .btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; }
+
+        footer { border-top: 1px solid var(--line); background: rgba(0,0,0,.16); }
+        .footer-inner {
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 22px;
+            color: var(--muted);
+            font-size: .8rem;
+        }
+        .footer-links { display: flex; gap: 8px; flex-wrap: wrap; }
+        .footer-links a {
+            color: var(--muted);
+            min-height: 40px;
+            display: inline-flex;
+            align-items: center;
+            padding: 0 10px;
+            border-radius: 10px;
+            text-decoration: none;
+        }
+        .footer-links a:hover { color: #fff; background: rgba(255,255,255,.04); }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(0,0,0,.76);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .modal.active { display: flex; }
+
+        .modal-card {
+            position: relative;
+            width: min(680px, 100%);
+            max-height: min(760px, calc(100vh - 40px));
+            overflow: auto;
+            padding: clamp(24px, 4vw, 34px);
+            border: 1px solid var(--line);
+            border-radius: 26px;
+            background: #0d141c;
+            box-shadow: var(--shadow);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            background: rgba(255,255,255,.035);
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .modal-kicker {
+            margin-bottom: 8px;
+            color: var(--accent);
+            font-size: .75rem;
+            font-weight: 850;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+        }
+
+        .modal-card h2 {
+            margin: 0 48px 8px 0;
+            font-size: clamp(1.7rem, 4vw, 2.3rem);
+            letter-spacing: -.04em;
+        }
+        .modal-card > p { color: var(--muted); margin: 0 0 20px; }
+
+        .import-box {
+            position: relative;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: rgba(0,0,0,.25);
+            overflow: hidden;
+        }
+
+        .import-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 11px 14px;
+            border-bottom: 1px solid var(--line);
+            color: var(--muted-2);
+            font-size: .74rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        .import-string {
+            width: 100%;
+            min-height: 180px;
+            display: block;
+            resize: vertical;
+            border: 0;
+            outline: 0;
+            padding: 16px;
+            background: transparent;
+            color: #dffcf8;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: .82rem;
+            line-height: 1.55;
+            word-break: break-all;
+        }
+
+        .copy-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .copy-row .btn { flex: 0 0 auto; }
+        .copy-status { color: var(--muted); font-size: .82rem; min-height: 1.2em; }
+        .copy-status.success { color: var(--success); }
+        .copy-status.error { color: var(--danger); }
+
+        .modal-help {
+            margin-top: 18px;
+            padding: 15px 16px;
+            border: 1px solid rgba(45,212,191,.13);
+            border-radius: 15px;
+            background: rgba(45,212,191,.045);
+            color: #b7c7d3;
+            font-size: .82rem;
+        }
+        .modal-help strong { color: #e8f3fb; }
+
+        @media (max-width: 1050px) {
+            .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .theme-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+
+        @media (max-width: 860px) {
+            :root { --header: 66px; }
+            .shell { width: min(100% - 32px, var(--max)); }
+            .nav-menu {
+                position: fixed;
+                inset: var(--header) 0 auto 0;
+                display: none;
+                flex-direction: column;
+                align-items: stretch;
+                padding: 16px;
+                background: rgba(5,7,10,.97);
+                border-bottom: 1px solid var(--line);
+                box-shadow: 0 30px 70px rgba(0,0,0,.38);
+            }
+            .nav-menu.open { display: flex; }
+            .nav-link { width: 100%; justify-content: flex-start; min-height: 48px; }
+            .nav-actions .support-mini { display: none; }
+            .menu-toggle { display: inline-flex; }
+            .how-to-head,
+            .section-head { display: block; }
+            .how-to-head p,
+            .section-head p { margin-top: 10px; }
+            .themes-hero { padding-top: 62px; }
+        }
+
+        @media (max-width: 620px) {
+            .shell { width: min(100% - 24px, var(--max)); }
+            .brand { font-size: 1.12rem; }
+            .themes-hero { padding: 50px 0 30px; }
+            .themes-hero h1 { font-size: clamp(2.75rem, 14vw, 4.7rem); }
+            .steps,
+            .theme-grid { grid-template-columns: 1fr; }
+            .step { min-height: 0; }
+            .themes-section { padding: 32px 0 70px; }
+            .theme-preview { aspect-ratio: 9 / 16; }
+            .footer-inner { padding: 26px 0; min-height: 0; align-items: flex-start; flex-direction: column; }
+            .copy-row { align-items: stretch; flex-direction: column; }
+            .copy-row .btn { width: 100%; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after {
+                animation-duration: .001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: .001ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="page-glow" aria-hidden="true"></div>
+
+<header class="site-header">
+    <div class="shell nav">
+        <a class="brand" href="index.html" aria-label="Aretivo home">
+            <span class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 2 20 5.2v6.2c0 5.4-3.2 9.1-8 10.6-4.8-1.5-8-5.2-8-10.6V5.2L12 2Zm-1.3 6.1v7.8l6.2-3.9-6.2-3.9Z"/></svg>
+            </span>
+            <span>Aretivo</span>
+        </a>
+
+        <nav class="nav-menu" id="navMenu" aria-label="Primary navigation">
+            <a class="nav-link" href="index.html">Home</a>
+            <a class="nav-link" href="index.html#aulosyne">Aulosyne</a>
+            <a class="nav-link active" href="themes.html" aria-current="page">Themes</a>
+            <a class="nav-link" href="index.html#screenshots">Screens</a>
+            <a class="nav-link" href="index.html#privacy">Privacy</a>
+        </nav>
+
+        <div class="nav-actions">
+            <a class="support-mini" href="https://patreon.com/aretivo" target="_blank" rel="noopener noreferrer">Support Aretivo</a>
+            <button class="menu-toggle" id="menuToggle" aria-label="Open menu" aria-expanded="false" aria-controls="navMenu">
+                <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+            </button>
+        </div>
+    </div>
+</header>
+
+<main id="main">
+    <section class="shell themes-hero">
+        <div class="eyebrow"><span class="eyebrow-dot"></span> Aulosyne custom themes</div>
+        <h1><span class="gradient">Choose a look.</span><br>Make it yours.</h1>
+        <p>Pick a theme below, copy its import string, then paste it into Aulosyne. No downloads or extra files are needed for the theme itself.</p>
+
+        <div class="how-to" aria-labelledby="howToTitle">
+            <div class="how-to-head">
+                <h2 id="howToTitle">How to use a theme</h2>
+                <p>Four quick steps inside Aulosyne.</p>
+            </div>
+
+            <div class="steps">
+                <article class="step">
+                    <div class="step-number">1</div>
+                    <h3>Choose a theme</h3>
+                    <p>Find the theme you want below and click <strong>Use theme</strong>.</p>
+                </article>
+
+                <article class="step">
+                    <div class="step-number">2</div>
+                    <h3>Copy the string</h3>
+                    <p>A theme import string will appear. Click <strong>Copy string</strong>.</p>
+                </article>
+
+                <article class="step">
+                    <div class="step-number">3</div>
+                    <h3>Open Customisation</h3>
+                    <p>Open <strong>Aulosyne → Settings → Customisation → Import</strong>.</p>
+                </article>
+
+                <article class="step">
+                    <div class="step-number">4</div>
+                    <h3>Paste & import</h3>
+                    <p>Paste the copied string into the import box, then tap <strong>Import</strong>.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <section class="shell themes-section" aria-labelledby="themesTitle">
+        <div class="section-head">
+            <div>
+                <h2 id="themesTitle">Available themes</h2>
+                <p>More themes can be added to this grid later by adding another theme object in the script.</p>
+            </div>
+        </div>
+
+        <div class="theme-grid" id="themeGrid"></div>
+    </section>
+</main>
+
+<footer>
+    <div class="shell footer-inner">
+        <div>© 2026 Aretivo · Privacy-first, offline-first software.</div>
+        <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="index.html#aulosyne">Aulosyne</a>
+            <a href="themes.html">Themes</a>
+            <a href="index.html#privacy">Privacy</a>
+            <a href="mailto:aretivo.apps@gmail.com">Contact</a>
+        </div>
+    </div>
+</footer>
+
+<div class="modal" id="themeModal" role="dialog" aria-modal="true" aria-labelledby="themeModalTitle" aria-describedby="themeModalDescription">
+    <div class="modal-card">
+        <button class="modal-close" id="themeModalClose" type="button" aria-label="Close theme dialog">×</button>
+        <div class="modal-kicker">Aulosyne theme import</div>
+        <h2 id="themeModalTitle">Theme</h2>
+        <p id="themeModalDescription">Copy this string, then paste it into Aulosyne.</p>
+
+        <div class="import-box">
+            <div class="import-label">
+                <span>Theme import string</span>
+                <span id="stringLength"></span>
+            </div>
+            <textarea class="import-string" id="themeImportString" readonly spellcheck="false" aria-label="Theme import string"></textarea>
+        </div>
+
+        <div class="copy-row">
+            <button class="btn btn-primary" id="copyThemeString" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 9h10v10H9zM5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>
+                <span>Copy string</span>
+            </button>
+            <div class="copy-status" id="copyStatus" role="status" aria-live="polite"></div>
+        </div>
+
+        <div class="modal-help">
+            <strong>Next:</strong> Aulosyne → Settings → Customisation → Import → paste the string → Import.
+        </div>
+    </div>
+</div>
+
+<script>
+(() => {
+    /*
+     * ADD / EDIT THEMES HERE.
+     *
+     * For Theme 1:
+     *   1. Put the screenshot beside this HTML file as: theme1.webp
+     *   2. Replace REPLACE_WITH_THEME_1_IMPORT_STRING with the real Aulosyne import string.
+     *
+     * To add more themes, copy the object and give it a new id, image and importString.
+     */
+    const themes = [
+        {
+            id: 'theme-1',
+            name: 'Theme 1',
+            description: 'A custom Aulosyne look ready to import into the player.',
+            image: 'theme1.webp',
+            badge: 'Custom',
+            importString: 'REPLACE_WITH_THEME_1_IMPORT_STRING'
+        }
+    ];
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const navMenu = document.getElementById('navMenu');
+    const menuToggle = document.getElementById('menuToggle');
+    const themeGrid = document.getElementById('themeGrid');
+    const themeModal = document.getElementById('themeModal');
+    const themeModalClose = document.getElementById('themeModalClose');
+    const themeModalTitle = document.getElementById('themeModalTitle');
+    const themeModalDescription = document.getElementById('themeModalDescription');
+    const themeImportString = document.getElementById('themeImportString');
+    const copyThemeString = document.getElementById('copyThemeString');
+    const copyStatus = document.getElementById('copyStatus');
+    const stringLength = document.getElementById('stringLength');
+
+    let lastFocusedElement = null;
+
+    const setMenu = (open) => {
+        navMenu?.classList.toggle('open', open);
+        document.body.classList.toggle('menu-open', open && window.innerWidth <= 860);
+        menuToggle?.setAttribute('aria-expanded', String(open));
+        if (menuToggle) menuToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    };
+
+    menuToggle?.addEventListener('click', () => setMenu(!navMenu?.classList.contains('open')));
+    navMenu?.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => setMenu(false)));
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 860) setMenu(false);
+    }, { passive: true });
+
+    const createThemeCard = (theme) => {
+        const card = document.createElement('article');
+        card.className = 'theme-card';
+
+        const preview = document.createElement('div');
+        preview.className = 'theme-preview';
+
+        const img = document.createElement('img');
+        img.src = theme.image;
+        img.alt = `${theme.name} Aulosyne theme preview`;
+        img.loading = 'lazy';
+
+        const fallback = document.createElement('div');
+        fallback.className = 'theme-preview-fallback';
+        fallback.innerHTML = `<div><strong>Theme preview</strong>Add <code>${escapeHtml(theme.image)}</code> beside this HTML file.</div>`;
+
+        img.addEventListener('error', () => {
+            img.style.display = 'none';
+            fallback.style.display = 'grid';
+        });
+
+        preview.append(img, fallback);
+
+        const info = document.createElement('div');
+        info.className = 'theme-info';
+
+        const titleRow = document.createElement('div');
+        titleRow.className = 'theme-title-row';
+
+        const title = document.createElement('h3');
+        title.textContent = theme.name;
+
+        const badge = document.createElement('span');
+        badge.className = 'theme-badge';
+        badge.textContent = theme.badge || 'Theme';
+
+        titleRow.append(title, badge);
+
+        const description = document.createElement('p');
+        description.textContent = theme.description;
+
+        const useButton = document.createElement('button');
+        useButton.className = 'btn btn-primary';
+        useButton.type = 'button';
+        useButton.innerHTML = `
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 21h14"/></svg>
+            <span>Use theme</span>
+        `;
+        useButton.addEventListener('click', () => openTheme(theme, useButton));
+
+        info.append(titleRow, description, useButton);
+        card.append(preview, info);
+        return card;
+    };
+
+    function escapeHtml(value) {
+        return String(value)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#039;');
+    }
+
+    const openTheme = (theme, trigger) => {
+        lastFocusedElement = trigger || document.activeElement;
+        themeModalTitle.textContent = theme.name;
+        themeModalDescription.textContent = `Copy the ${theme.name} import string, then paste it into Aulosyne.`;
+        themeImportString.value = theme.importString;
+        stringLength.textContent = `${theme.importString.length} characters`;
+        copyStatus.textContent = '';
+        copyStatus.className = 'copy-status';
+        themeModal.classList.add('active');
+        document.body.classList.add('modal-open');
+        themeModalClose.focus();
+    };
+
+    const closeTheme = () => {
+        themeModal.classList.remove('active');
+        document.body.classList.remove('modal-open');
+        copyStatus.textContent = '';
+        if (lastFocusedElement instanceof HTMLElement) lastFocusedElement.focus();
+    };
+
+    const copyImportString = async () => {
+        const value = themeImportString.value;
+        if (!value) return;
+
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(value);
+            } else {
+                themeImportString.focus();
+                themeImportString.select();
+                const copied = document.execCommand('copy');
+                if (!copied) throw new Error('Copy command failed');
+                themeImportString.setSelectionRange(0, 0);
+            }
+
+            copyStatus.textContent = 'Copied to clipboard.';
+            copyStatus.className = 'copy-status success';
+            copyThemeString.querySelector('span').textContent = 'Copied';
+
+            window.setTimeout(() => {
+                copyThemeString.querySelector('span').textContent = 'Copy string';
+            }, reducedMotion ? 500 : 1600);
+        } catch (error) {
+            themeImportString.focus();
+            themeImportString.select();
+            copyStatus.textContent = 'Could not copy automatically. The string is selected — copy it manually.';
+            copyStatus.className = 'copy-status error';
+        }
+    };
+
+    themes.forEach((theme) => themeGrid.appendChild(createThemeCard(theme)));
+
+    copyThemeString.addEventListener('click', copyImportString);
+    themeModalClose.addEventListener('click', closeTheme);
+    themeModal.addEventListener('click', (event) => {
+        if (event.target === themeModal) closeTheme();
+    });
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            if (themeModal.classList.contains('active')) closeTheme();
+            setMenu(false);
+        }
+    });
+})();
+</script>
+</body>
+</html>
