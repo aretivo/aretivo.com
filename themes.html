@@ -372,6 +372,77 @@
             object-fit: cover;
         }
 
+        .theme-carousel {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            touch-action: pan-y;
+        }
+
+        .theme-carousel-track {
+            display: flex;
+            height: 100%;
+            transition: transform .32s cubic-bezier(.22, .61, .36, 1);
+        }
+        .theme-carousel-track.dragging { transition: none; }
+
+        .theme-carousel-slide {
+            flex: 0 0 100%;
+            width: 100%;
+            height: 100%;
+        }
+        .theme-carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+        }
+
+        .theme-carousel-arrow {
+            position: absolute;
+            top: 50%;
+            z-index: 3;
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            transform: translateY(-50%);
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,.16);
+            background: rgba(5,7,10,.55);
+            color: #fff;
+            cursor: pointer;
+            opacity: .85;
+            transition: opacity .18s ease, background .18s ease;
+        }
+        .theme-carousel-arrow:hover { background: rgba(45,212,191,.35); opacity: 1; }
+        .theme-carousel-arrow:disabled { opacity: .22; cursor: default; }
+        .theme-carousel-arrow.prev { left: 8px; }
+        .theme-carousel-arrow.next { right: 8px; }
+        .theme-carousel-arrow svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+        .theme-carousel-dots {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 10px;
+            z-index: 3;
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+        }
+        .theme-carousel-dot {
+            width: 6px;
+            height: 6px;
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,.38);
+            cursor: pointer;
+            transition: background .2s ease, transform .2s ease;
+        }
+        .theme-carousel-dot.active { background: var(--accent); transform: scale(1.4); }
+
         .theme-preview-fallback {
             position: absolute;
             inset: 0;
@@ -782,11 +853,23 @@
     /*
      * ADD / EDIT THEMES HERE.
      *
-     * For Theme 1:
-     *   1. Put the screenshot beside this HTML file as: theme1.webp
-     *   2. Replace REPLACE_WITH_THEME_1_IMPORT_STRING with the real Aulosyne import string.
+     * Every theme needs: id, name, description, badge, importString, and
+     * ONE of the following for screenshots:
      *
-     * To add more themes, copy the object and give it a new id, image and importString.
+     *   - a single screenshot:
+     *       image: 'theme2.webp'
+     *
+     *   - multiple screenshots, shown here as a swipeable carousel
+     *     (and picked up by the Aulosyne app's own theme browser too):
+     *       images: ['theme2.1.webp', 'theme2.2.webp', 'theme2.3.webp']
+     *
+     * Put the screenshot file(s) beside this HTML file. The "N.N" numbering
+     * (theme2.1.webp, theme2.2.webp, ...) is the same convention the app
+     * looks for, so one set of files serves both places — no app changes
+     * needed when you add more screenshots to a theme.
+     *
+     * To add a new theme, copy one of the objects below, give it a new id,
+     * and paste in the real Aulosyne import string.
      */
     const themes = [
         {
@@ -797,6 +880,17 @@
             badge: 'Custom',
             importString: 'A7b%:6&6G0Tm+=zFHnxJOZA4Dazr9uxL(I)MfiNf:vc*oZmg>M[DZU@j~ursOl5ONSN|s9GVf%^)/f{N6Z^pJnRKS2)&JxHiNXPZ&GwgdBK>6~/N{#9W~1OPN1kEz~#&QG-OYPCwP@&X_Iq-0W1G]VYLLX9&vF@ayNfF}gfY[F7*-/26bHa]zszV1BkBJT[RRRKDwzvK0]T=5<jo|nB@4o~4TMOMep)xEzRY^*~XvB41Wq4=PmUB<W*SEZD39Iv{VVykt_+EISPHa5N(e[Ry/Y_x~z>kV3%>UV@|5slzzOs+ERMCaf<jeZmTJ@WJ76o5jQ*Sn<1Xy_[dfyylbAdYSo8>R9&wz9Hp62+Y7LUcqC$#KCcz&G^X1j82IVGZ:tUZ|h8{d(mG|j)C-mg*o9lo~9(d-h7}EcUki<CY<9gEZuLrBpF)$2JjlGL5}sH=y7byWJ|PgmOoQQO<qt6mLhqq5r-m6+wic-|VvTdnS#QG-xlC7g+M1O0kMefzZ-(kKbDEV9pvU&psjm^86r&QqAp(Cz+8))2hlRm(Wn|8Kr$FA/ZjTUqXHXfh)Gzu*=CMkKi8'
         }
+
+        // Example of a second theme with a multi-screenshot carousel — copy,
+        // rename the id, add real screenshots, and fill in a real import string:
+        // {
+        //     id: 'theme-2',
+        //     name: 'Another Theme',
+        //     description: 'One sentence describing the look.',
+        //     images: ['theme2.1.webp', 'theme2.2.webp'],
+        //     badge: 'Custom',
+        //     importString: 'REPLACE_WITH_THEME_2_IMPORT_STRING'
+        // }
     ];
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -834,21 +928,136 @@
         const preview = document.createElement('div');
         preview.className = 'theme-preview';
 
-        const img = document.createElement('img');
-        img.src = theme.image;
-        img.alt = `${theme.name} Aulosyne theme preview`;
-        img.loading = 'lazy';
+        const images = (Array.isArray(theme.images) && theme.images.length
+            ? theme.images
+            : [theme.image]
+        ).filter(Boolean);
 
         const fallback = document.createElement('div');
         fallback.className = 'theme-preview-fallback';
-        fallback.innerHTML = `<div><strong>Theme preview</strong>Add <code>${escapeHtml(theme.image)}</code> beside this HTML file.</div>`;
+        fallback.innerHTML = `<div><strong>Theme preview</strong>Add <code>${escapeHtml(images[0] || '')}</code> beside this HTML file.</div>`;
+        fallback.style.display = images.length ? 'none' : 'grid';
 
-        img.addEventListener('error', () => {
-            img.style.display = 'none';
-            fallback.style.display = 'grid';
+        let failedCount = 0;
+        const handleImgError = (img) => {
+            img.style.visibility = 'hidden';
+            failedCount++;
+            if (failedCount >= images.length) fallback.style.display = 'grid';
+        };
+
+        const carousel = document.createElement('div');
+        carousel.className = 'theme-carousel';
+
+        const track = document.createElement('div');
+        track.className = 'theme-carousel-track';
+
+        images.forEach((src, index) => {
+            const slide = document.createElement('div');
+            slide.className = 'theme-carousel-slide';
+
+            const img = document.createElement('img');
+            img.src = src;
+            img.alt = images.length > 1
+                ? `${theme.name} Aulosyne theme preview (${index + 1} of ${images.length})`
+                : `${theme.name} Aulosyne theme preview`;
+            img.loading = 'lazy';
+            img.addEventListener('error', () => handleImgError(img));
+
+            slide.appendChild(img);
+            track.appendChild(slide);
         });
 
-        preview.append(img, fallback);
+        carousel.appendChild(track);
+        preview.append(carousel, fallback);
+
+        if (images.length > 1) {
+            let current = 0;
+            let dragging = false;
+            let dragStartX = 0;
+            let dragDeltaX = 0;
+            let carouselWidth = 0;
+            const dotEls = [];
+
+            const setPosition = (index, { animate = true } = {}) => {
+                current = Math.max(0, Math.min(index, images.length - 1));
+                track.classList.toggle('dragging', !animate);
+                track.style.transform = `translateX(-${current * 100}%)`;
+                dotEls.forEach((dot, i) => dot.classList.toggle('active', i === current));
+                prevArrow.disabled = current === 0;
+                nextArrow.disabled = current === images.length - 1;
+            };
+
+            const prevArrow = document.createElement('button');
+            prevArrow.type = 'button';
+            prevArrow.className = 'theme-carousel-arrow prev';
+            prevArrow.setAttribute('aria-label', 'Previous screenshot');
+            prevArrow.innerHTML = '<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>';
+            prevArrow.addEventListener('click', (event) => {
+                event.stopPropagation();
+                setPosition(current - 1);
+            });
+
+            const nextArrow = document.createElement('button');
+            nextArrow.type = 'button';
+            nextArrow.className = 'theme-carousel-arrow next';
+            nextArrow.setAttribute('aria-label', 'Next screenshot');
+            nextArrow.innerHTML = '<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>';
+            nextArrow.addEventListener('click', (event) => {
+                event.stopPropagation();
+                setPosition(current + 1);
+            });
+
+            const dots = document.createElement('div');
+            dots.className = 'theme-carousel-dots';
+            images.forEach((_, index) => {
+                const dot = document.createElement('button');
+                dot.type = 'button';
+                dot.className = 'theme-carousel-dot';
+                dot.setAttribute('aria-label', `Show screenshot ${index + 1} of ${images.length}`);
+                dot.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    setPosition(index);
+                });
+                dots.appendChild(dot);
+                dotEls.push(dot);
+            });
+
+            carousel.append(prevArrow, nextArrow, dots);
+
+            carousel.addEventListener('pointerdown', (event) => {
+                if (event.pointerType === 'mouse' && event.button !== 0) return;
+                dragging = true;
+                dragStartX = event.clientX;
+                dragDeltaX = 0;
+                carouselWidth = carousel.clientWidth || 1;
+                track.classList.add('dragging');
+                carousel.setPointerCapture(event.pointerId);
+            });
+            carousel.addEventListener('pointermove', (event) => {
+                if (!dragging) return;
+                dragDeltaX = event.clientX - dragStartX;
+                const percent = (dragDeltaX / carouselWidth) * 100;
+                track.style.transform = `translateX(calc(-${current * 100}% + ${percent}%))`;
+            });
+            const endDrag = () => {
+                if (!dragging) return;
+                dragging = false;
+                const threshold = carouselWidth * 0.18;
+                if (dragDeltaX < -threshold) {
+                    setPosition(current + 1);
+                } else if (dragDeltaX > threshold) {
+                    setPosition(current - 1);
+                } else {
+                    setPosition(current);
+                }
+                dragDeltaX = 0;
+            };
+            carousel.addEventListener('pointerup', endDrag);
+            carousel.addEventListener('pointercancel', endDrag);
+            carousel.addEventListener('pointerleave', () => { if (dragging) endDrag(); });
+
+            setPosition(0, { animate: false });
+        }
 
         const info = document.createElement('div');
         info.className = 'theme-info';
